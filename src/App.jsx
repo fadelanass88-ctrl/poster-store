@@ -1,246 +1,140 @@
-import { useMemo, useState } from 'react'
-import { products } from './data'
+export const categories = ['All', 'Abstract', 'Nature', 'Minimal', 'Black & White', 'Travel']
 
-const categories = ['All', ...new Set(products.map((product) => product.category))]
+export const collectionCards = [
+  {
+    title: 'Gallery Essentials',
+    subtitle: 'Clean, modern statements',
+    accent: '#fbbf24',
+    image:
+      'https://images.unsplash.com/photo-1515405295579-ba7b45403062?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    title: 'Nature Calm',
+    subtitle: 'Soft scenes and earthy tones',
+    accent: '#4ade80',
+    image:
+      'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    title: 'Color Pop',
+    subtitle: 'Lively energy for creative walls',
+    accent: '#f472b6',
+    image:
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+  },
+]
 
-const formatPrice = (value) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(value)
-
-export default function App() {
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [search, setSearch] = useState('')
-  const [cart, setCart] = useState([])
-
-  const visibleProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchesCategory =
-        selectedCategory === 'All' || product.category === selectedCategory
-      const matchesSearch =
-        product.name.toLowerCase().includes(search.toLowerCase()) ||
-        product.description.toLowerCase().includes(search.toLowerCase())
-
-      return matchesCategory && matchesSearch
-    })
-  }, [selectedCategory, search])
-
-  const addToCart = (product) => {
-    setCart((currentCart) => {
-      const existing = currentCart.find((item) => item.id === product.id)
-
-      if (existing) {
-        return currentCart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
-        )
-      }
-
-      return [...currentCart, { ...product, quantity: 1 }]
-    })
-  }
-
-  const updateQuantity = (productId, delta) => {
-    setCart((currentCart) =>
-      currentCart
-        .map((item) =>
-          item.id === productId ? { ...item, quantity: item.quantity + delta } : item,
-        )
-        .filter((item) => item.quantity > 0),
-    )
-  }
-
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = cart.length > 0 ? 12 : 0
-  const total = subtotal + shipping
-
-  return (
-    <div className="page-shell">
-      <header className="topbar">
-        <div className="brand-wrap">
-          <div className="brand-mark">P</div>
-          <div>
-            <p className="eyebrow">Curated wall art</p>
-            <h1>Poster Store</h1>
-          </div>
-        </div>
-
-        <nav className="nav">
-          <a href="#shop">Shop</a>
-          <a href="#new">New Arrivals</a>
-          <a href="#featured">Featured</a>
-        </nav>
-
-        <button className="cart-pill" type="button">
-          Cart ({cart.reduce((sum, item) => sum + item.quantity, 0)})
-        </button>
-      </header>
-
-      <main>
-        <section className="hero">
-          <div className="hero-copy">
-            <p className="eyebrow warm">Fresh visual stories</p>
-            <h2>Bring personality to every wall.</h2>
-            <p>
-              Discover gallery-inspired posters designed to transform your space with
-              color, texture, and modern energy.
-            </p>
-            <div className="hero-actions">
-              <a href="#shop" className="primary-btn">
-                Shop Posters
-              </a>
-              <button type="button" className="secondary-btn">
-                Explore Collections
-              </button>
-            </div>
-            <div className="metrics">
-              <div>
-                <strong>2.4k+</strong>
-                <span>Happy buyers</span>
-              </div>
-              <div>
-                <strong>4.9/5</strong>
-                <span>Average rating</span>
-              </div>
-              <div>
-                <strong>48h</strong>
-                <span>Dispatch time</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="hero-visual" aria-label="Featured poster collection">
-            <div className="poster-card large">
-              <img
-                src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80"
-                alt="Featured poster mockup"
-              />
-            </div>
-            <div className="poster-card small top">
-              <img
-                src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
-                alt="Poster sample"
-              />
-            </div>
-            <div className="poster-card small bottom">
-              <img
-                src="https://images.unsplash.com/photo-1515405295579-ba7b45403062?auto=format&fit=crop&w=1200&q=80"
-                alt="Poster sample"
-              />
-            </div>
-          </div>
-        </section>
-
-        <section id="shop" className="catalog">
-          <div className="catalog-header">
-            <div>
-              <p className="eyebrow">Shop collection</p>
-              <h3>Find your next statement piece</h3>
-            </div>
-
-            <div className="catalog-tools">
-              <input
-                type="search"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search posters"
-                aria-label="Search posters"
-              />
-            </div>
-          </div>
-
-          <div className="filter-row">
-            {categories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                className={selectedCategory === category ? 'filter active' : 'filter'}
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-
-          <div className="product-grid">
-            {visibleProducts.map((product) => (
-              <article key={product.id} className="product-card">
-                <div className="product-image-wrap">
-                  <img src={product.image} alt={product.name} />
-                  <span className="badge">{product.category}</span>
-                </div>
-
-                <div className="product-info">
-                  <div className="product-topline">
-                    <h4>{product.name}</h4>
-                    <span>{formatPrice(product.price)}</span>
-                  </div>
-                  <p>{product.description}</p>
-                  <button type="button" onClick={() => addToCart(product)}>
-                    Add to cart
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <aside className="cart-panel" aria-label="Shopping cart summary">
-          <div className="cart-header">
-            <p className="eyebrow">Your cart</p>
-            <h3>Order summary</h3>
-          </div>
-
-          {cart.length === 0 ? (
-            <div className="empty-state">
-              <p>Your cart is empty.</p>
-              <span>Add a few posters to get started.</span>
-            </div>
-          ) : (
-            <div className="cart-items">
-              {cart.map((item) => (
-                <div className="cart-item" key={item.id}>
-                  <div className="mini-thumb">
-                    <img src={item.image} alt={item.name} />
-                  </div>
-                  <div className="mini-copy">
-                    <strong>{item.name}</strong>
-                    <span>{formatPrice(item.price)}</span>
-                  </div>
-                  <div className="quantity-controls">
-                    <button type="button" onClick={() => updateQuantity(item.id, -1)}>
-                      −
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button type="button" onClick={() => updateQuantity(item.id, 1)}>
-                      +
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="totals">
-            <div>
-              <span>Subtotal</span>
-              <strong>{formatPrice(subtotal)}</strong>
-            </div>
-            <div>
-              <span>Shipping</span>
-              <strong>{formatPrice(shipping)}</strong>
-            </div>
-            <div className="grand-total">
-              <span>Total</span>
-              <strong>{formatPrice(total)}</strong>
-            </div>
-          </div>
-
-          <button type="button" className="checkout-btn">
-            Proceed to checkout
-          </button>
-        </aside>
-      </main>
-    </div>
-  )
-}
+export const products = [
+  {
+    id: 1,
+    name: 'Midnight City',
+    category: 'Abstract',
+    price: 32,
+    image:
+      'https://images.unsplash.com/photo-1515405295579-ba7b45403062?auto=format&fit=crop&w=1200&q=80',
+    description: 'A bold abstract composition for a moody modern room.',
+    size: '18 x 24 in',
+    material: 'Archival matte paper',
+    rating: 4.9,
+    reviews: 248,
+    stock: 14,
+  },
+  {
+    id: 2,
+    name: 'Coastal Calm',
+    category: 'Nature',
+    price: 28,
+    image:
+      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
+    description: 'Soft coastal tones and layered textures for a serene setup.',
+    size: '20 x 30 in',
+    material: 'Museum-quality paper',
+    rating: 4.8,
+    reviews: 195,
+    stock: 11,
+  },
+  {
+    id: 3,
+    name: 'Neon Pulse',
+    category: 'Minimal',
+    price: 36,
+    image:
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+    description: 'High-contrast geometry with a vibrant neon finish.',
+    size: '24 x 36 in',
+    material: 'High-gloss premium stock',
+    rating: 5.0,
+    reviews: 312,
+    stock: 8,
+  },
+  {
+    id: 4,
+    name: 'Forest Echo',
+    category: 'Nature',
+    price: 30,
+    image:
+      'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80',
+    description: 'Immersive greenery-inspired artwork for relaxed interiors.',
+    size: '18 x 24 in',
+    material: 'Cotton rag finish',
+    rating: 4.7,
+    reviews: 164,
+    stock: 22,
+  },
+  {
+    id: 5,
+    name: 'Monochrome Mood',
+    category: 'Black & White',
+    price: 24,
+    image:
+      'https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80',
+    description: 'A refined monochrome statement for creative spaces.',
+    size: '16 x 20 in',
+    material: 'Matte archival paper',
+    rating: 4.9,
+    reviews: 141,
+    stock: 31,
+  },
+  {
+    id: 6,
+    name: 'Sunset Drift',
+    category: 'Travel',
+    price: 34,
+    image:
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+    description: 'Warm horizon colors designed to bring the outside in.',
+    size: '24 x 36 in',
+    material: 'Fine art satin print',
+    rating: 4.8,
+    reviews: 203,
+    stock: 19,
+  },
+  {
+    id: 7,
+    name: 'Horizon Lines',
+    category: 'Abstract',
+    price: 29,
+    image:
+      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
+    description: 'Balanced gradients and clean lines for understated rooms.',
+    size: '20 x 28 in',
+    material: 'Lustre finish',
+    rating: 4.7,
+    reviews: 120,
+    stock: 17,
+  },
+  {
+    id: 8,
+    name: 'Quiet Corner',
+    category: 'Minimal',
+    price: 26,
+    image:
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80',
+    description: 'Minimal textures and warm neutrals designed for slow mornings.',
+    size: '18 x 24 in',
+    material: 'Soft-touch matte stock',
+    rating: 4.8,
+    reviews: 178,
+    stock: 28,
+  },
+]
